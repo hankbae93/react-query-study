@@ -301,3 +301,25 @@ const RQSuperHeroesPage = () => {
 
 export default RQSuperHeroesPage;
 ```
+
+## Query by Id
+
+<img src="./docs_img/queryById1.png" />
+
+useQuery의 첫 번째 인자인 유니크 키는 string 또는 배열을 받는데
+
+해당 요청의 관련 parameter들을 같이 등록할 수 있다.
+
+```ts
+import axios from "axios";
+import { useQuery } from "react-query";
+
+const fetchSuperHeroes = ({ queryKey }) => {
+	const heroId = queryKey[1];
+	return axios.get(`http://localhost:4000/superheroes/${heroId}`);
+};
+
+export default (heroId) => {
+	return useQuery(["super-hero-data", heroId], fetchSuperHeroes);
+};
+```
