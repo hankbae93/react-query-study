@@ -117,7 +117,7 @@ export default () => {
 };
 ```
 
-<img src="./devtools2.png"/>
+<img src="./docs_img/devtools2.png"/>
 
 <br/>
 
@@ -137,4 +137,167 @@ const { isLoading, data, error, isError } = useQuery(
 		cacheTime: 5000, // 기본적으로 5분마다 삭제되지만 조정할 수도 있다.
 	}
 );
+```
+
+## StaleTime
+
+    클라이언트가 fetch를 해 데이터(Fresh)를 받고나서 서버단이 데이터를 업데이트한다고 하면
+
+    그때부터 클라이언트의 데이터(Stale)과 서버단의 데이터가 다를 것이다.
+
+    이런 의미에서 Fresh/Stale로 구분한다.
+
+### 1. Fresh
+
+<img src="./docs_img/stale2.png" />
+
+<em>fetch를 한 후 30초동안은 fresh 상태에 머무르는데 이때는 아래 명시된 상황이 있어도 refetch를 하지 않는다.</em>
+
+### 2. Stale
+
+<img src="./docs_img/stale1.png" />
+
+Fetch 후 데이터는 Fresh 상태에서 `stale("뜻: 상한, 낡은") 상태`로 전환되며
+
+다음 경우에 refetch를 한다.
+
+    1. page를 이동 했다가 왔을 때, 새로운 query instance가 마운트 될 때 (refetchOnMount)
+
+    2. 브라우저 화면을 이탈 했다가 다시 focus 할 때 (refetchOnWindowFocus)
+
+    3. 네트워크가 다시 연결될 때 (refetchOnReconnect)
+
+    4. 특별히 설정한 refetch interval에 의한 경우 (refetchInterval)
+
+관련상황마다 option으로 refetch를 할지 말지 정할 수 있다
+
+```ts
+const { isLoading, data, error, isError } = useQuery(
+	"super-heroes",
+	fetchSuperHeroes,
+	{
+		refetchOnMount: false,
+		refetchOnWindowFocus: false,
+		refetchOnReconnect: false,
+		refetchInterval: false, // 숫자를 주면 폴링 기능 (주기적으로 refetch)
+	}
+);
+```
+
+### 3. StaleTime을 쓰는 이유
+
+랜딩 페이지의 소개글처럼 바뀔 일 없는 데이터는 굳이 refetch를 하는 게 불만일수 있다.
+
+> staleTime 옵션은 data가 fresh에서 stale로 전환되는 시간을 의미한다.
+
+```tsx
+const { isLoading, data, error, isError } = useQuery(
+	"super-heroes",
+	fetchSuperHeroes,
+	{
+		staleTime: 30000,
+	}
+);
+```
+
+네트워크탭에서 staleTime의 시간동안 refetch가 일어나지않는 걸 확인할 수 있다.
+
+## enabled 옵션
+
+```tsx
+const { isLoading, data, error, isError } = useQuery(
+	"super-heroes",
+	fetchSuperHeroes,
+	{
+		enabled: false,
+		// enable의 값을 flag로 우리가 원하는 시점에 fetch하게 할 수 있다.
+	}
+);
+```
+
+## callback
+
+요청 성공 시, 실패 시에 콜백을 실행시킬 수 있다.
+
+```tsx
+const onSuccess = (data: HeroResponseTypes) => {
+	console.log(data);
+};
+
+const onError = (e: Error) => {
+	console.log(e.message);
+};
+
+const { isLoading, data, error } = useQuery("super-heroes", fetchSuperHeroes, {
+	onSuccess,
+	onError,
+});
+```
+
+## data transform
+
+select 옵션은 인자로 응답 데이터를 주고 변형할 수 있게 도와준다.
+
+```tsx
+const RQSuperHeroesPage = () => {
+	const { data } = useQuery("super-heroes", fetchSuperHeroes, {
+		select: (data) => {
+			const newData = data.data.map((v) => ({
+				...v,
+				name: v.name ?? "홍길동",
+				// 만약 빈값이면 디폴트값 주게 설정
+			}));
+
+			return { ...data, data: newData };
+		},
+	});
+
+	return (
+		<>
+			{data?.data.map((hero) => {
+				return <div key={hero.name}>{hero.name}</div>;
+			})}
+		</>
+	);
+};
+
+export default RQSuperHeroesPage;
+```
+
+## custom hooks
+
+```ts
+// useSuperhero.js
+import axios from "axios";
+import { useQuery } from "react-query";
+
+const fetchSuperHeroes = () => {
+	return axios.get("http://localhost:4000/superheroes");
+};
+
+export default () => {
+	return useQuery("super-heroes", fetchSuperHeroes);
+};
+```
+
+> 자주 쓰이는 url 쿼리거나 로직이 복잡하여 분리하고 싶다면 커스텀 훅스로 만들면 좋다.
+
+```ts
+// RQSuperHeroesPage.jsx
+import useSuperHeroes from "../hooks/useSuperHeroes";
+
+const RQSuperHeroesPage = () => {
+	const { data } = useSuperHeroes();
+
+	return (
+		<>
+			<h2>Super Heroes Page</h2>
+			{data?.data.map((hero) => {
+				return <div key={hero.name}>{hero.name}</div>;
+			})}
+		</>
+	);
+};
+
+export default RQSuperHeroesPage;
 ```
