@@ -1,9 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from "react-query";
-// import axios from 'axios'
-import { request } from "axios/lib/utils";
+import axios from "axios";
+import { request } from "../utils/axios-util";
+
+const fetchSuperHero = ({ queryKey }) => {
+	const heroId = queryKey[1];
+	return axios.get(`http://localhost:4000/superheroes/${heroId}`);
+};
+
+export const useSuperHero = (heroId) => {
+	return useQuery(["super-hero-data", heroId], fetchSuperHero);
+};
 
 const fetchSuperHeroes = () => {
-	// return axios.get('http://localhost:4000/superheroes')
 	return request({ url: "/superheroes" });
 };
 
@@ -19,29 +27,21 @@ export const useSuperHeroesData = (onSuccess, onError) => {
 };
 
 const addSuperHero = (hero) => {
-	// return axios.post('http://localhost:4000/superheroes', hero)
-	return request({ url: "/superheroes", method: "post", data: hero });
+	return axios.post("http://localhost:4000/superheroes", hero);
 };
 
 export const useAddSuperHeroData = () => {
 	const queryClient = useQueryClient();
-
 	return useMutation(addSuperHero, {
-		// onSuccess: data => {
-		//   /** Query Invalidation Start */
-		//   // queryClient.invalidateQueries('super-heroes')
-		//   /** Query Invalidation End */
-
-		//   /** Handling Mutation Response Start */
-		// queryClient.setQueryData('super-heroes', oldQueryData => {
-		//   return {
-		//     ...oldQueryData,
-		//     data: [...oldQueryData.data, data.data]
-		//   }
-		// })
-		//   /** Handling Mutation Response Start */
+		// onSuccess: (response) => {
+		// 	// queryClient.invalidateQueries("super-heroes");
+		// 	queryClient.setQueryData("super-heroes", (oldQueryData) => {
+		// 		return {
+		// 			...oldQueryData,
+		// 			data: [...oldQueryData.data, response.data],
+		// 		};
+		// 	});
 		// },
-		/**Optimistic Update Start */
 		onMutate: async (newHero) => {
 			await queryClient.cancelQueries("super-heroes");
 			const previousHeroData = queryClient.getQueryData("super-heroes");
@@ -54,14 +54,13 @@ export const useAddSuperHeroData = () => {
 					],
 				};
 			});
-			return { previousHeroData };
+			return {
+				previousHeroData,
+			};
 		},
-		onError: (_err, _newTodo, context) => {
+		onError: (_error, _hero, context) => {
 			queryClient.setQueryData("super-heroes", context.previousHeroData);
 		},
-		onSettled: () => {
-			queryClient.invalidateQueries("super-heroes");
-		},
-		/**Optimistic Update End */
+		onSettled: () => [queryClient.invalidateQueries("super-heroes")],
 	});
 };

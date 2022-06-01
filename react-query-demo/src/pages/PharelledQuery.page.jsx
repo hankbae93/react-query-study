@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import { useQuery } from "react-query";
-import DynamicParaell from "./DynamicParaell";
+import DynamicParaell from "./DynamicParaell.page";
 
 const fetchSuperHeroes = () => {
 	return axios.get("http://localhost:4000/superheroes");

@@ -2,15 +2,16 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { QueryClientProvider, QueryClient } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import "./App.css";
-// import { HomePage } from "./components/Home.page";
-import { RQSuperHeroesPage } from "./components/RQSuperHeroes.page";
-// import { RQSuperHeroPage } from "./components/RQSuperHero.page";
-// import { SuperHeroesPage } from "./components/SuperHeroes.page";
-// import { ParallelQueriesPage } from "./components/ParallelQueries.page";
-// import { DynamicParallelPage } from "./components/DynamicParallel.page";
-// import { DependentQueriesPage } from "./components/DependentQueries.page";
-// import { PaginatedQueriesPage } from "./components/PaginatedQueries.page";
-// import { InfiniteQueriesPage } from "./components/InfiniteQueries.page";
+
+import DependentPage from "./pages/Dependent.page";
+import PharelledQueryPage from "./pages/PharelledQuery.page";
+import DynamicParaellPage from "./pages/DynamicParaell.page";
+import HomePage from "./pages/Home.page";
+import InfinitePage from "./pages/Infinite.page";
+import PaginatePage from "./pages/Paginate.page";
+import RQSuperHeroPage from "./pages/RQSuperHero.page";
+import RQSuperHeroesPage from "./pages/RQSuperHeroes.page";
+import SuperHerosPage from "./pages/SuperHeroes.page";
 
 const queryClient = new QueryClient();
 
@@ -33,34 +34,34 @@ function App() {
 						</ul>
 					</nav>
 					<Switch>
-						<Route path='/rq-super-heroes'>
-							<RQSuperHeroesPage />
-						</Route>
-						{/* <Route path='/super-heroes'>
-							<SuperHeroesPage />
-						</Route>
 						<Route path='/rq-super-heroes/:heroId'>
 							<RQSuperHeroPage />
 						</Route>
-						
+						<Route path='/rq-super-heroes'>
+							<RQSuperHeroesPage />
+						</Route>
+						<Route path='/super-heroes'>
+							<SuperHerosPage />
+						</Route>
+
 						<Route path='/rq-parallel'>
-							<ParallelQueriesPage />
+							<PharelledQueryPage />
 						</Route>
 						<Route path='/rq-dynamic-parallel'>
-							<DynamicParallelPage heroIds={[1, 3]} />
+							<DynamicParaellPage heroIds={[1, 3]} />
 						</Route>
 						<Route path='/rq-dependent'>
-							<DependentQueriesPage email='vishwas@example.com' />
+							<DependentPage email='vishwas@example.com' />
 						</Route>
 						<Route path='/rq-paginated'>
-							<PaginatedQueriesPage />
+							<PaginatePage />
 						</Route>
 						<Route path='/rq-infinite'>
-							<InfiniteQueriesPage />
+							<InfinitePage />
 						</Route>
 						<Route path='/'>
 							<HomePage />
-						</Route> */}
+						</Route>
 					</Switch>
 				</div>
 			</Router>

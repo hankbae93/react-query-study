@@ -5,7 +5,7 @@ import {
 } from "../hooks/useSuperHeroesData";
 import { Link } from "react-router-dom";
 
-export const RQSuperHeroesPage = () => {
+const RQSuperHeroesPage = () => {
 	const [name, setName] = useState("");
 	const [alterEgo, setAlterEgo] = useState("");
 
@@ -21,7 +21,6 @@ export const RQSuperHeroesPage = () => {
 		onSuccess,
 		onError
 	);
-
 	const { mutate: addHero } = useAddSuperHeroData();
 
 	const handleAddHeroClick = () => {
@@ -69,3 +68,5 @@ export const RQSuperHeroesPage = () => {
 		</>
 	);
 };
+
+export default RQSuperHeroesPage;

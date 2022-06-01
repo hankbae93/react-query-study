@@ -9,7 +9,7 @@ const fetchCoursesByChannelId = (channelId) => {
 	return axios.get(`http://localhost:4000/channels/${channelId}`);
 };
 
-export const DependentQueriesPage = ({ email }) => {
+export default function DependentQueriesPage({ email }) {
 	const { data: user } = useQuery(["user", email], () =>
 		fetchUserByEmail(email)
 	);
@@ -18,4 +18,4 @@ export const DependentQueriesPage = ({ email }) => {
 		enabled: Boolean(channelId),
 	});
 	return <div>DependentQueries</div>;
-};
+}

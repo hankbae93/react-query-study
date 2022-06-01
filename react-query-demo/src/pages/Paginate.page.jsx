@@ -6,7 +6,7 @@ const fetchColors = (page) => {
 	return axios.get(`http://localhost:4000/colors?_limit=2&_page=${page}`);
 };
 
-const Paginate = () => {
+const PaginatePage = () => {
 	const [page, setPage] = useState(1);
 	const { isLoading, isError, error, data, isFetching } = useQuery(
 		["colors", page],
@@ -55,4 +55,4 @@ const Paginate = () => {
 	);
 };
 
-export default Paginate;
+export default PaginatePage;

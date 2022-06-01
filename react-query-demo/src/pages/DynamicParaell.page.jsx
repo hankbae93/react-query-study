@@ -6,7 +6,7 @@ const fetchSuperHero = (heroId) => {
 	return axios.get(`http://localhost:4000/superheroes/${heroId}`);
 };
 
-const DynamicParaell = ({ heroIds }) => {
+const DynamicParaellPage = ({ heroIds }) => {
 	const results = useQueries(
 		heroIds.map((id) => {
 			return {
@@ -16,7 +16,7 @@ const DynamicParaell = ({ heroIds }) => {
 		})
 	);
 	console.log(results);
-	return <div>DynamicParaell</div>;
+	return <div>DynamicParaellPage</div>;
 };
 
-export default DynamicParaell;
+export default DynamicParaellPage;

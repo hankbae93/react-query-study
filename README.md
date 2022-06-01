@@ -7,12 +7,12 @@ https://react-query.tanstack.com/overview
 https://kyounghwan01.github.io/blog/React/react-query/basic/#usequery
 <br/>
 
-## `What is?`
+# `What is?`
 
 리액트 어플리케이션에서 데이타를 fetching하는 라이브러리
 <br/>
 
-## `Why`
+# `Why`
 
 1.  특정한 데이터 패칭 패턴이 없었다.
 
@@ -41,7 +41,7 @@ React Query는 서버 상태를 관리하는 데 가장 좋은 라이브러리 �
 <br/>
 <br/>
 
-## `예전 데이터 패칭 방식`
+# `예전 데이터 패칭 방식`
 
 ```jsx
 const RQSuperHeroesPage = () => {
@@ -105,7 +105,7 @@ export default RQSuperHeroesPage;
 
 <br/>
 
-## `Devtools`
+# `Devtools`
 
 react-query에서는 시각적으로 확인할 수 있게 devtool도 지원한다.
 
@@ -127,7 +127,7 @@ export default () => {
 <br/>
 <br/>
 
-## `Cache`
+# `Cache`
 
 네트워크 탭에서 네트워크 속도를 낮추고 페이지를 왔다리 갔다리 해보면
 
@@ -147,7 +147,7 @@ const { isLoading, data, error, isError } = useQuery(
 
 <br/>
 
-## `StaleTime`
+# `StaleTime`
 
     클라이언트가 fetch를 해 데이터(Fresh)를 받고나서 서버단이 데이터를 업데이트한다고 하면
 
@@ -217,7 +217,7 @@ const { isLoading, data, error, isError } = useQuery(
 
 <br/>
 
-## `enabled 옵션`
+# `enabled 옵션`
 
 ```tsx
 const { isLoading, data, error, isError } = useQuery(
@@ -232,7 +232,7 @@ const { isLoading, data, error, isError } = useQuery(
 
 <br/>
 
-## `callback`
+# `callback`
 
 요청 성공 시, 실패 시에 콜백을 실행시킬 수 있다.
 
@@ -253,7 +253,7 @@ const { isLoading, data, error } = useQuery("super-heroes", fetchSuperHeroes, {
 
 <br/>
 
-## `data transform`
+# `data transform`
 
 select 옵션은 인자로 응답 데이터를 주고 변형할 수 있게 도와준다.
 
@@ -285,7 +285,7 @@ export default RQSuperHeroesPage;
 
 <br/>
 
-## `custom hooks`
+# `custom hooks`
 
 ```ts
 // useSuperhero.js
@@ -325,7 +325,7 @@ export default RQSuperHeroesPage;
 
 <br/>
 
-## `Query by Id`
+# `Query by Id`
 
 <img src="./docs_img/queryById1.png" />
 
@@ -349,7 +349,7 @@ export default (heroId) => {
 
 <br/>
 
-## `Parallel Queries`
+# `Parallel Queries`
 
 가끔씩 한 컴포넌트에서 여러개의 api를 요청해야될 때가 있다.
 
@@ -407,7 +407,7 @@ export default DynamicParaell;
 
 <br/>
 
-## `Dependent Queries`
+# `Dependent Queries`
 
 react-query는 유효하지 않는 파라미터라도 일단 fetch를 하고 보는데
 
@@ -434,7 +434,7 @@ const { isIdle, data: projects } = useQuery(
 
 <br/>
 
-## `Initial Query Data`
+# `Initial Query Data`
 
     There are many ways to supply initial data for a query to the cache before you need it:
 
@@ -480,7 +480,7 @@ export default (heroId) => {
 
 <br/>
 
-## 페이징 처리하는 방법들
+# 페이징 처리하는 방법들
 
     react-query는 페이징 처리도 너무... 편하다!
 
@@ -639,4 +639,130 @@ const Infinite = () => {
 };
 
 export default Infinite;
+```
+
+<br/>
+
+# `Mutation`
+
+### 1. `Mutation`
+
+지금까지는 `GET`요청에 대한 처리들이었다.
+
+`Post`나 `PUT`같은 http 요청은 mutation으로 사용가능하다.
+
+```ts
+// useSuperHeroesData.js
+import { useMutation } from "react-query";
+
+const addSuperHero = (hero) => {
+	return axios.post("http://localhost:4000/superheroes", hero);
+};
+
+export const useAddSuperHeroData = () => {
+	// useMutation은 key값을 받지 않고 바로 fetch Fn을 받는다.
+	return useMutation(addSuperHero);
+};
+```
+
+mutation 또한 loading, error 등 요청 관련 상태를 지원한다!
+
+```ts
+const { mutate: addHero, isLoading, error } = useAddSuperHeroData();
+
+const handleAddHeroClick = () => {
+	const hero = { name, alterEgo };
+	addHero(hero);
+};
+```
+
+<br />
+
+### 2. `invalidateQueries`
+
+우리는 POST를 함으로써 현재 서버의 데이터가 새로 업데이트되었다는 걸 알 것이다.
+
+이런 의미에서 query가 오래 되었다고 판단하고 fetch를 다시 할 텐데
+
+이럴 때 `queryClient.invalidateQueries`를 활용한다.
+
+```ts
+const addSuperHero = (hero) => {
+	return axios.post("http://localhost:4000/superheroes", hero);
+};
+
+export const useAddSuperHeroData = () => {
+	const queryClient = useQueryClient();
+	return useMutation(addSuperHero, {
+		onSuccess: () => {
+			queryClient.invalidateQueries("super-heroes");
+			// 해당 키의 쿼리 인스턴스가 무효화?되어
+			// 쿼리가 변하지 않았음에도 refetch한다.
+		},
+	});
+};
+```
+
+### 3. `Response` 다루기
+
+invalidateQueries 메소드를 활용해도 되지만
+
+보통 post나 put 요청에는 서버가 해당 데이터를 보내준다.
+
+queryClient.setQueryData를 통해 response의 담긴 데이터를 기존 캐싱된 인스턴스에
+
+저장할 수 있다.
+
+```ts
+export const useAddSuperHeroData = () => {
+	const queryClient = useQueryClient();
+	return useMutation(addSuperHero, {
+		onSuccess: (response) => {
+			// queryClient.invalidateQueries("super-heroes");
+			queryClient.setQueryData("super-heroes", (oldQueryData) => {
+				return {
+					...oldQueryData,
+					data: [...oldQueryData.data, response.data],
+				};
+			});
+		},
+	});
+};
+```
+
+### 4. `Optimistic Updates`
+
+페이스북 좋아요 버튼을 누를 때 사실 요청이 간것이 확실하기만 하다면 굳이
+
+응답을 받을 필요가 없다.
+
+react-query는 그럴 때 응답을 기다리지말고 미리 우리의 상태를 업데이트하는 방법을 지원한다.
+
+```ts
+const queryClient = useQueryClient();
+
+useMutation(updateTodo, {
+	// When mutate is called:
+	onMutate: async (newTodo) => {
+		// Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+		await queryClient.cancelQueries("todos");
+
+		// Snapshot the previous value
+		const previousTodos = queryClient.getQueryData("todos");
+
+		// Optimistically update to the new value
+		queryClient.setQueryData("todos", (old) => [...old, newTodo]);
+
+		// Return a context object with the snapshotted value
+		return { previousTodos };
+	},
+	// If the mutation fails, use the context returned from onMutate to roll back
+	onError: (err, newTodo, context) => {
+		queryClient.setQueryData("todos", context.previousTodos);
+	},
+	// Always refetch after error or success:
+	onSettled: () => {
+		queryClient.invalidateQueries("todos");
+	},
+});
 ```
