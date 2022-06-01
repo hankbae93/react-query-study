@@ -5,12 +5,14 @@ https://www.youtube.com/watch?v=VtWkSCZX0Ec&list=PLC3y8-rFHvwjTELCrPrcZlo6blLBUs
 https://react-query.tanstack.com/overview
 
 https://kyounghwan01.github.io/blog/React/react-query/basic/#usequery
+<br/>
 
-## What is?
+## `What is?`
 
 리액트 어플리케이션에서 데이타를 fetching하는 라이브러리
+<br/>
 
-## Why
+## `Why`
 
 1.  특정한 데이터 패칭 패턴이 없었다.
 
@@ -37,8 +39,9 @@ React Query는 서버 상태를 관리하는 데 가장 좋은 라이브러리 �
 ```
 
 <br/>
+<br/>
 
-## 예전 데이터 패칭 방식
+## `예전 데이터 패칭 방식`
 
 ```jsx
 const RQSuperHeroesPage = () => {
@@ -100,7 +103,9 @@ const RQSuperHeroesPage = () => {
 export default RQSuperHeroesPage;
 ```
 
-## Devtools
+<br/>
+
+## `Devtools`
 
 react-query에서는 시각적으로 확인할 수 있게 devtool도 지원한다.
 
@@ -120,8 +125,9 @@ export default () => {
 <img src="./docs_img/devtools2.png"/>
 
 <br/>
+<br/>
 
-## Cache
+## `Cache`
 
 네트워크 탭에서 네트워크 속도를 낮추고 페이지를 왔다리 갔다리 해보면
 
@@ -139,7 +145,9 @@ const { isLoading, data, error, isError } = useQuery(
 );
 ```
 
-## StaleTime
+<br/>
+
+## `StaleTime`
 
     클라이언트가 fetch를 해 데이터(Fresh)를 받고나서 서버단이 데이터를 업데이트한다고 하면
 
@@ -147,13 +155,16 @@ const { isLoading, data, error, isError } = useQuery(
 
     이런 의미에서 Fresh/Stale로 구분한다.
 
-### 1. Fresh
+<br/>
+
+### 1. `Fresh`
 
 <img src="./docs_img/stale2.png" />
 
 <em>fetch를 한 후 30초동안은 fresh 상태에 머무르는데 이때는 아래 명시된 상황이 있어도 refetch를 하지 않는다.</em>
+<br/>
 
-### 2. Stale
+### 2. `Stale`
 
 <img src="./docs_img/stale1.png" />
 
@@ -184,7 +195,9 @@ const { isLoading, data, error, isError } = useQuery(
 );
 ```
 
-### 3. StaleTime을 쓰는 이유
+<br/>
+
+### 3. `StaleTime을 쓰는 이유`
 
 랜딩 페이지의 소개글처럼 바뀔 일 없는 데이터는 굳이 refetch를 하는 게 불만일수 있다.
 
@@ -202,7 +215,9 @@ const { isLoading, data, error, isError } = useQuery(
 
 네트워크탭에서 staleTime의 시간동안 refetch가 일어나지않는 걸 확인할 수 있다.
 
-## enabled 옵션
+<br/>
+
+## `enabled 옵션`
 
 ```tsx
 const { isLoading, data, error, isError } = useQuery(
@@ -215,7 +230,9 @@ const { isLoading, data, error, isError } = useQuery(
 );
 ```
 
-## callback
+<br/>
+
+## `callback`
 
 요청 성공 시, 실패 시에 콜백을 실행시킬 수 있다.
 
@@ -234,7 +251,9 @@ const { isLoading, data, error } = useQuery("super-heroes", fetchSuperHeroes, {
 });
 ```
 
-## data transform
+<br/>
+
+## `data transform`
 
 select 옵션은 인자로 응답 데이터를 주고 변형할 수 있게 도와준다.
 
@@ -264,7 +283,9 @@ const RQSuperHeroesPage = () => {
 export default RQSuperHeroesPage;
 ```
 
-## custom hooks
+<br/>
+
+## `custom hooks`
 
 ```ts
 // useSuperhero.js
@@ -302,7 +323,9 @@ const RQSuperHeroesPage = () => {
 export default RQSuperHeroesPage;
 ```
 
-## Query by Id
+<br/>
+
+## `Query by Id`
 
 <img src="./docs_img/queryById1.png" />
 
@@ -322,4 +345,298 @@ const fetchSuperHeroes = ({ queryKey }) => {
 export default (heroId) => {
 	return useQuery(["super-hero-data", heroId], fetchSuperHeroes);
 };
+```
+
+<br/>
+
+## `Parallel Queries`
+
+가끔씩 한 컴포넌트에서 여러개의 api를 요청해야될 때가 있다.
+
+그럴 때는 그냥 선언하면 된다.
+
+```tsx
+import React from "react";
+import axios from "axios";
+import { useQuery } from "react-query";
+
+const fetchSuperHeroes = () => {
+	return axios.get("http://localhost:4000/superheroes");
+};
+
+const fetchFriends = () => {
+	return axios.get("http://localhost:4000/friends");
+};
+
+const PharelledQueryPage = () => {
+	const { data: superheroesData } = useQuery("super-heroes", fetchSuperHeroes);
+	const { data: friendsData } = useQuery("friends", fetchFriends);
+
+	return <div>PharelledQueryPage</div>;
+};
+
+export default PharelledQueryPage;
+```
+
+useQueries를 활용하면 Promise.all처럼 여러개의 쿼리 인스턴스를 생성할 수 있다.
+
+```tsx
+import React from "react";
+import axios from "axios";
+import { useQueries } from "react-query";
+
+const fetchSuperHero = (heroId) => {
+	return axios.get(`http://localhost:4000/superheroes/${heroId}`);
+};
+
+const DynamicParaell = ({ heroIds }) => {
+	const results = useQueries(
+		heroIds.map((id) => {
+			return {
+				queryKey: ["super-hero", id],
+				queryFn: () => fetchSuperHero(id),
+			};
+		})
+	);
+	console.log(results);
+	return <div>DynamicParaell</div>;
+};
+
+export default DynamicParaell;
+```
+
+<br/>
+
+## `Dependent Queries`
+
+react-query는 유효하지 않는 파라미터라도 일단 fetch를 하고 보는데
+
+enabled옵션에서 참조하게 하여 `뻘?fetch`를 막을 수 있다.
+
+history api를 참조하거나 next.js에서 hydration 과정에서
+
+쿼리를 늦게 들고올 수 있어 이런식으로 대처한다.
+
+```ts
+const { data: user } = useQuery(["user", email], getUserByEmail);
+
+const userId = user?.id;
+
+const { isIdle, data: projects } = useQuery(
+	["projects", userId],
+	getProjectsByUser,
+	{
+		// !!로 Booelan으로 형변환하는 과정을 대체할 수 있다.
+		enabled: !!userId,
+	}
+);
+```
+
+<br/>
+
+## `Initial Query Data`
+
+    There are many ways to supply initial data for a query to the cache before you need it:
+
+만약 리스트를 받는 요청을 했는데 그안에 해당 id의 디테일한 내용도 같이 있었다면
+
+**우리는 id 페이지에서 또 fetch를 해야될까?**
+
+initialData옵션과 useQueryClient를 통해
+
+생성된 쿼리인스턴스에서 캐시된 정보를 가져오는 것도 가능하다.
+
+```tsx
+import axios from "axios";
+import { useQuery, useQueryClient } from "react-query";
+
+const fetchSuperHeroes = ({ queryKey }) => {
+	const heroId = queryKey[1];
+	return axios.get(`http://localhost:4000/superheroes/${heroId}`);
+};
+
+export default (heroId) => {
+	const queryClient = useQueryClient();
+	return useQuery(["super-hero-data", heroId], fetchSuperHeroes, {
+		initialData: () => {
+			const hero = queryClient
+				.getQueryData("super-heroes")
+				?.data?.find((hero) => hero.id === +heroId);
+			// queryClient에서 캐싱되어있는 데이터가 없다면
+			// 기존의 fetchSuperHeroes를 실행
+			// 아니라면 "super-heroes"에 캐싱된 데이터를 가져올 것이다.
+
+			return hero
+				? {
+						data: hero,
+				  }
+				: undefined;
+		},
+		// slow 3g로 테스트해보면 id페이지에서 새로고침할땐 로딩이 있지만
+		// 리스트페이지에서 id페이지로 이동할 땐 로딩이 없는 것을 확인할 수 있다.
+	});
+};
+```
+
+<br/>
+
+## 페이징 처리하는 방법들
+
+    react-query는 페이징 처리도 너무... 편하다!
+
+### 1. `Paginated Queries`
+
+keepPreviousData 옵션을 통해 UX도 개선가능하다.
+
+```tsx
+import axios from "axios";
+import React, { useState } from "react";
+import { useQuery } from "react-query";
+
+const fetchColors = (page) => {
+	// json-server는 _limit와 _page 기능을 제공한다.
+	return axios.get(`http://localhost:4000/colors?_limit=2&_page=${page}`);
+};
+
+const Paginate = () => {
+	const [page, setPage] = useState(1);
+	const { isLoading, isError, error, data, isFetching } = useQuery(
+		["colors", page],
+		() => fetchColors(page),
+		{
+			keepPreviousData: true,
+			// 페이징은 잘되지만 매 fetch마다 loading처리를 보게 된다.
+			// UX를 위해 이제 fetch가 다 끝나고 나서야 데이터를 교체하게 설정할 수 있다.
+		}
+	);
+
+	if (isLoading) {
+		return <h2>Loading...</h2>;
+	}
+
+	if (isError) {
+		return <h2>{error.message}</h2>;
+	}
+	return (
+		<div>
+			<div>
+				{data?.data.map((color) => {
+					return (
+						<div key={color.id}>
+							<h2>
+								{color.id}. {color.label}
+							</h2>
+						</div>
+					);
+				})}
+			</div>
+			<div>
+				<button
+					onClick={() => setPage((page) => page - 1)}
+					disabled={page === 1}
+				>
+					Prev Page
+				</button>
+				<button
+					onClick={() => setPage((page) => page + 1)}
+					disabled={page === 4}
+				>
+					Next Page
+				</button>
+			</div>
+		</div>
+	);
+};
+
+export default Paginate;
+```
+
+<br/>
+
+### 2. `Infinite Queries`
+
+흔히 만드는 페이징 관련 상태나 함수를 react-query가 제공해준다.
+
+정말 편하게 페이징처리로직을 짤 수 있다.
+
+`hasNextPage`: 다음 페이지가 있는지 boolean으로 줌
+
+`fetchNextPage`: 다음 파라미터로 fetch할 함수
+
+Next.js 옵션들 중`getNextPageParam, getPreviousPageParam`는
+
+로드할 데이터가 더 있는지 여부와 가져올 정보를 결정하는 데 사용할 수 있습니다.
+
+```tsx
+import { useInfiniteQuery } from "react-query";
+import axios from "axios";
+
+const fetchColors = ({ pageParam = 1 }) => {
+	return axios.get(`http://localhost:4000/colors?_limit=2&_page=${pageParam}`);
+};
+
+const Infinite = () => {
+	const {
+		isLoading,
+		isError,
+		error,
+		data,
+		fetchNextPage,
+		hasNextPage,
+		isFetching,
+		isFetchingNextPage,
+	} = useInfiniteQuery(["colors"], fetchColors, {
+		getNextPageParam: (_lastPage, pages) => {
+			/*
+				_lastPage에서는 현재 요청한 데이터의 정보
+				pages는 지금까지 누적된 데이터의 정보
+
+				보통 rest를 작업하다보면 요청마다 총 total 페이지 개수를 받게 된다.
+				아래 코드에서는 total 개수를 명시해줘서 
+				4보다 작으면 계속 다음 파라미터를 넘겨줘서 
+				fetchNextPage, hasNextPage가 유효하게 나올 것이고
+				4이상이 되면 알아서 false처리 될 것이다.
+			*/
+			if (pages.length < 4) {
+				return pages.length + 1;
+			} else {
+				return undefined;
+			}
+		},
+	});
+
+	if (isLoading) {
+		return <h2>Loading...</h2>;
+	}
+
+	if (isError) {
+		return <h2>{error.message}</h2>;
+	}
+
+	return (
+		<>
+			<div>
+				{data?.pages.map((group, i) => {
+					return (
+						<Fragment key={i}>
+							{group.data.map((color) => (
+								<h2 key={color.id}>
+									{color.id} {color.label}
+								</h2>
+							))}
+						</Fragment>
+					);
+				})}
+			</div>
+			<div>
+				<button onClick={() => fetchNextPage()} disabled={!hasNextPage}>
+					Load more
+				</button>
+			</div>
+			<div>{isFetching && !isFetchingNextPage ? "Fetching..." : null}</div>
+		</>
+	);
+};
+
+export default Infinite;
 ```

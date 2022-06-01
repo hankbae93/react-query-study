@@ -14,11 +14,11 @@ const RQSuperHeroPage = () => {
 	if (isError) {
 		return <p>{error.message}</p>;
 	}
-
+	console.log(data);
 	return (
 		<div>
-			<h2>{data.data.name}</h2>
-			<p>{data.data.alterEgo}</p>
+			<h2>{data?.data?.name}</h2>
+			<p>{data?.data?.alterEgo}</p>
 		</div>
 	);
 };
